@@ -119,7 +119,7 @@ export function RaidPlanner({ state, onStateChange }: RaidPlannerProps) {
     try {
       await copyText(window.location.href)
       setShareStatus('copied')
-      window.setTimeout(() => setShareStatus('idle'), 2_000)
+      window.setTimeout(() => setShareStatus('idle'), 5_000)
     } catch {
       setShareStatus('error')
     }
@@ -439,6 +439,7 @@ function PlayerSlot({
     attributes,
     listeners,
     setNodeRef: setDraggableRef,
+    setActivatorNodeRef,
     isDragging,
   } = useDraggable({
     id: `member-${slotIndex}`,
@@ -481,10 +482,11 @@ function PlayerSlot({
       style={{ '--spec-color': spec.color } as CSSProperties}
     >
       <button
+        ref={setActivatorNodeRef}
         type="button"
         className="drag-handle"
         aria-label={`Move ${member.name || spec.name} ${spec.className}`}
-        title="Drag to move or swap"
+        title="Drag this handle to move or swap"
         {...listeners}
         {...attributes}
       >
