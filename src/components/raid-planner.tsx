@@ -601,10 +601,9 @@ function collectBuffs(slots: Array<RaidMember | null>) {
 }
 
 async function copyText(value: string) {
-  const clipboard = (navigator as Navigator & { clipboard?: Clipboard })
-    .clipboard
+  const clipboard = Reflect.get(navigator, 'clipboard') as Clipboard | undefined
 
-  if (clipboard) {
+  if (clipboard !== undefined) {
     await clipboard.writeText(value)
     return
   }
