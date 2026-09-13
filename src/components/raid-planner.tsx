@@ -7,13 +7,11 @@ import {
   useDroppable,
   useSensor,
   useSensors,
-  type DragEndEvent,
-  type DragStartEvent,
 } from '@dnd-kit/core'
+import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core'
 import { useForm } from '@tanstack/react-form'
 import {
   Check,
-  Copy,
   GripVertical,
   Link2,
   MousePointerClick,
@@ -22,22 +20,13 @@ import {
   Users,
   X,
 } from 'lucide-react'
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-} from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import type { CSSProperties, MutableRefObject } from 'react'
 
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
-import {
-  specClasses,
-  specsById,
-  type GroupBuff,
-  type SpecDefinition,
-} from '#/data/specs'
+import { specClasses, specsById } from '#/data/specs'
+import type { GroupBuff, SpecDefinition } from '#/data/specs'
 import {
   GROUP_SIZE,
   MAX_PLAYER_NAME_LENGTH,
@@ -47,9 +36,8 @@ import {
   moveMember,
   removeMember,
   updateMemberName,
-  type RaidMember,
-  type RaidState,
 } from '#/lib/raid-state'
+import type { RaidMember, RaidState } from '#/lib/raid-state'
 
 type DragData =
   { source: 'palette'; specId: string } | { source: 'slot'; slotIndex: number }
@@ -345,7 +333,7 @@ function SpecTile({
 }: {
   spec: SpecDefinition
   onAdd: () => void
-  draggedRef: React.MutableRefObject<boolean>
+  draggedRef: MutableRefObject<boolean>
 }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `palette-${spec.id}`,
@@ -613,8 +601,11 @@ function collectBuffs(slots: Array<RaidMember | null>) {
 }
 
 async function copyText(value: string) {
-  if (navigator.clipboard?.writeText) {
-    await navigator.clipboard.writeText(value)
+  const clipboard = (navigator as Navigator & { clipboard?: Clipboard })
+    .clipboard
+
+  if (clipboard) {
+    await clipboard.writeText(value)
     return
   }
 
