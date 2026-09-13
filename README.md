@@ -24,6 +24,7 @@ The development server runs at [http://localhost:43127](http://localhost:43127).
 ```bash
 npm run dev        # Start the development server
 npm run test       # Run state-model tests
+npm run test:e2e   # Run the browser interaction test
 npm run typecheck  # Check TypeScript
 npm run lint       # Run ESLint
 npm run check      # Check formatting
@@ -37,6 +38,13 @@ npm run build      # Create a production build
 - dnd-kit for pointer, touch, and keyboard drag-and-drop
 - Tailwind CSS with shadcn/ui primitives
 - Vitest for URL-state and roster-editing tests
+- Playwright for the end-to-end drag, share, and restore flow
+
+Install Playwright's local browser once before running the end-to-end test:
+
+```bash
+npx playwright install chromium
+```
 
 World of Warcraft and its specialization artwork are trademarks and game assets
 of Blizzard Entertainment. This project is not affiliated with or endorsed by
