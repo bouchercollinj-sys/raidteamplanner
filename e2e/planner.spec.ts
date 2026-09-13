@@ -13,8 +13,14 @@ test('builds, moves, shares, and restores a raid', async ({
     page.getByRole('heading', { name: 'Build the raid around the people.' }),
   ).toBeVisible()
 
-  await page.getByTitle('Add Shadow Priest').click()
-  await page.getByTitle('Add Holy Priest').click()
+  await page
+    .getByTitle('Add Shadow Priest')
+    .evaluate((button: HTMLButtonElement) => button.click())
+  await expect(page.getByLabel('Player name')).toHaveCount(1)
+  await page
+    .getByTitle('Add Holy Priest')
+    .evaluate((button: HTMLButtonElement) => button.click())
+  await expect(page.getByLabel('Player name')).toHaveCount(2)
 
   const playerNames = page.getByLabel('Player name')
   await playerNames.nth(0).fill('Shadowmoon')
