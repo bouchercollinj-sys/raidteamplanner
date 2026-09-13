@@ -55,9 +55,13 @@ test('builds, moves, shares, and restores a raid', async ({
   await expect(targetSlot).toHaveAttribute('data-over', 'true')
   await page.mouse.up()
 
-  await expect(groups.nth(0).getByDisplayValue('Shadowmoon')).toHaveCount(0)
-  await expect(groups.nth(0).getByDisplayValue('Lightbringer')).toBeVisible()
-  await expect(groups.nth(1).getByDisplayValue('Shadowmoon')).toBeVisible()
+  await expect(groups.nth(0).locator('input[value="Shadowmoon"]')).toHaveCount(
+    0,
+  )
+  await expect(
+    groups.nth(0).locator('input[value="Lightbringer"]'),
+  ).toBeVisible()
+  await expect(groups.nth(1).locator('input[value="Shadowmoon"]')).toBeVisible()
   await expect(groups.nth(1).getByText('Vampiric Touch')).toBeVisible()
 
   await page.getByRole('button', { name: 'Copy share link' }).click()
@@ -72,7 +76,9 @@ test('builds, moves, shares, and restores a raid', async ({
   await page.goto('about:blank')
   await page.goto(sharedUrl)
 
-  await expect(groups.nth(0).getByDisplayValue('Lightbringer')).toBeVisible()
-  await expect(groups.nth(1).getByDisplayValue('Shadowmoon')).toBeVisible()
+  await expect(
+    groups.nth(0).locator('input[value="Lightbringer"]'),
+  ).toBeVisible()
+  await expect(groups.nth(1).locator('input[value="Shadowmoon"]')).toBeVisible()
   await expect(groups.nth(1).getByText('Vampiric Touch')).toBeVisible()
 })
