@@ -12,6 +12,7 @@ test('builds, moves, shares, and restores a raid', async ({
   await expect(
     page.getByRole('heading', { name: 'Build the raid around the people.' }),
   ).toBeVisible()
+  await page.waitForLoadState('networkidle')
 
   await page
     .getByTitle('Add Shadow Priest')
