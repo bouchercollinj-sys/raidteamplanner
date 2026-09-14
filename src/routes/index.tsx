@@ -1,8 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import { RaidPlanner } from '#/components/raid-planner'
+import { PlannerApp } from '#/components/planner-app'
 import { Button } from '#/components/ui/button'
-import { decodeRaid, encodeRaid, isRaidEmpty } from '#/lib/raid-state'
+import { getAccountState } from '#/lib/preset-functions'
+import { decodeRaid, encodeRaid, shouldPersistRaid } from '#/lib/raid-state'
 import type { RaidState } from '#/lib/raid-state'
 
 type PlannerSearch = {
@@ -13,6 +14,7 @@ export const Route = createFileRoute('/')({
   validateSearch: (search: Record<string, unknown>): PlannerSearch => ({
     raid: typeof search.raid === 'string' ? search.raid : undefined,
   }),
+  loader: () => getAccountState(),
   pendingComponent: PlannerLoading,
   component: PlannerRoute,
 })
@@ -20,11 +22,14 @@ export const Route = createFileRoute('/')({
 function PlannerRoute() {
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
+  const account = Route.useLoaderData()
   const decoded = decodeRaid(search.raid)
 
   const setRaid = (state: RaidState) => {
     void navigate({
-      search: { raid: isRaidEmpty(state) ? undefined : encodeRaid(state) },
+      search: {
+        raid: shouldPersistRaid(state) ? encodeRaid(state) : undefined,
+      },
       replace: true,
       resetScroll: false,
     })
@@ -34,9 +39,6 @@ function PlannerRoute() {
     return (
       <main className="route-state">
         <div className="route-state-card" role="alert">
-          <span className="brand-mark" aria-hidden="true">
-            WF
-          </span>
           <p className="eyebrow">Shared setup error</p>
           <h1>We could not open this roster.</h1>
           <p>{decoded.message}</p>
@@ -53,7 +55,14 @@ function PlannerRoute() {
     )
   }
 
-  return <RaidPlanner state={decoded.state} onStateChange={setRaid} />
+  return (
+    <PlannerApp
+      state={decoded.state}
+      user={account.user}
+      presets={account.presets}
+      onStateChange={setRaid}
+    />
+  )
 }
 
 function PlannerLoading() {

@@ -10,6 +10,7 @@ import {
   useSensors,
 } from '@dnd-kit/core'
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core'
+import { Link } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
 import {
   Check,
@@ -28,17 +29,24 @@ import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import { specClasses, specsById } from '#/data/specs'
 import type { GroupBuff, SpecDefinition } from '#/data/specs'
+import { AccountControls } from '#/components/account-controls'
 import {
   GROUP_SIZE,
   MAX_PLAYER_NAME_LENGTH,
-  RAID_SIZE,
+  RAID_SIZES,
   addSpecToFirstOpenSlot,
   addSpecToSlot,
+  createEmptyRaid,
+  groupCount,
   moveMember,
+  raidSize,
+  raidSizeLabel,
   removeMember,
+  resizeRaid,
   updateMemberName,
 } from '#/lib/raid-state'
-import type { RaidMember, RaidState } from '#/lib/raid-state'
+import type { RaidMember, RaidSize, RaidState } from '#/lib/raid-state'
+import type { SavedPresetSummary, SessionUser } from '#/lib/preset-functions'
 
 type DragData =
   { source: 'palette'; specId: string } | { source: 'slot'; slotIndex: number }
@@ -46,9 +54,30 @@ type DragData =
 type RaidPlannerProps = {
   state: RaidState
   onStateChange: (state: RaidState) => void
+  user: SessionUser | null
+  presets: Array<SavedPresetSummary>
+  currentSlug?: string
+  onPresetsChange: (presets: Array<SavedPresetSummary>) => void
+  onOpenPreset: (slug: string) => void
+  onSavePreset: (name: string) => Promise<SavedPresetSummary>
+  onUpdatePreset?: (name?: string) => Promise<SavedPresetSummary>
+  onDeletePreset: (slug: string) => Promise<void>
+  onSignedOut: () => void
 }
 
-export function RaidPlanner({ state, onStateChange }: RaidPlannerProps) {
+export function RaidPlanner({
+  state,
+  onStateChange,
+  user,
+  presets,
+  currentSlug,
+  onPresetsChange,
+  onOpenPreset,
+  onSavePreset,
+  onUpdatePreset,
+  onDeletePreset,
+  onSignedOut,
+}: RaidPlannerProps) {
   const [activeDrag, setActiveDrag] = useState<DragData | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [shareStatus, setShareStatus] = useState<'idle' | 'copied' | 'error'>(
@@ -65,6 +94,8 @@ export function RaidPlanner({ state, onStateChange }: RaidPlannerProps) {
     useSensor(KeyboardSensor),
   )
   const memberCount = state.slots.filter(Boolean).length
+  const size = raidSize(state)
+  const groups = groupCount(size)
 
   const addSpec = (specId: string) => {
     const nextState = addSpecToFirstOpenSlot(state, specId)
@@ -78,6 +109,24 @@ export function RaidPlanner({ state, onStateChange }: RaidPlannerProps) {
 
     onStateChange(nextState)
     setNotice(null)
+  }
+
+  const changeRaidSize = (nextSize: RaidSize) => {
+    const nextState = resizeRaid(state, nextSize)
+
+    if (nextState === state) {
+      return
+    }
+
+    const keptCount = nextState.slots.filter(Boolean).length
+    const dropped = memberCount - keptCount
+
+    onStateChange(nextState)
+    setNotice(
+      dropped > 0
+        ? `${dropped} player${dropped === 1 ? '' : 's'} could not fit in the ${raidSizeLabel(nextSize)} and ${dropped === 1 ? 'was' : 'were'} removed.`
+        : null,
+    )
   }
 
   const handleDragStart = ({ active }: DragStartEvent) => {
@@ -119,9 +168,12 @@ export function RaidPlanner({ state, onStateChange }: RaidPlannerProps) {
     setNotice(null)
   }
 
-  const copyShareLink = async () => {
+  const copyShareLink = async (path?: string) => {
     try {
-      await copyText(window.location.href)
+      const url = path
+        ? new URL(path, window.location.origin).toString()
+        : window.location.href
+      await copyText(url)
       setShareStatus('copied')
       window.setTimeout(() => setShareStatus('idle'), 5_000)
     } catch {
@@ -148,25 +200,33 @@ export function RaidPlanner({ state, onStateChange }: RaidPlannerProps) {
     >
       <div className="planner-shell">
         <header className="planner-header">
-          <div className="brand-lockup" aria-label="WoW Forever Planner">
-            <span className="brand-mark" aria-hidden="true">
-              WF
-            </span>
-            <span>WoW Forever</span>
-          </div>
+          <Link to="/" className="brand-lockup">
+            justraidplanner
+          </Link>
           <div className="header-actions">
+            <AccountControls
+              user={user}
+              presets={presets}
+              raid={state}
+              currentSlug={currentSlug}
+              onPresetsChange={onPresetsChange}
+              onOpenPreset={onOpenPreset}
+              onSave={async (name) => onSavePreset(name)}
+              onUpdate={onUpdatePreset}
+              onDelete={onDeletePreset}
+              onCopySharePath={(path) => copyShareLink(path)}
+              onSignedOut={onSignedOut}
+            />
             <Button
               type="button"
               variant="outline"
-              onClick={() =>
-                onStateChange({ slots: Array(RAID_SIZE).fill(null) })
-              }
+              onClick={() => onStateChange(createEmptyRaid(size))}
               disabled={memberCount === 0}
             >
               <RotateCcw />
               Reset
             </Button>
-            <Button type="button" onClick={copyShareLink}>
+            <Button type="button" onClick={() => void copyShareLink()}>
               {shareStatus === 'copied' ? <Check /> : <Link2 />}
               {shareStatus === 'copied' ? 'Link copied' : 'Copy share link'}
             </Button>
@@ -175,24 +235,42 @@ export function RaidPlanner({ state, onStateChange }: RaidPlannerProps) {
 
         <section className="planner-intro">
           <div>
-            <p className="eyebrow">TBC Classic · 25-player raids</p>
+            <p className="eyebrow">WoW - Forever · {size}-player raids</p>
             <h1>Build the raid around the people.</h1>
             <p className="intro-copy">
-              Arrange five parties, spot group buffs, and keep player names in
-              one link your team can open anywhere.
+              Arrange {groups} parties, spot group buffs, and keep player names
+              in one link your team can open anywhere.
             </p>
           </div>
-          <div
-            className="roster-count"
-            aria-label={`${memberCount} of 25 raid slots filled`}
-          >
-            <Users aria-hidden="true" />
-            <div>
-              <strong>
-                {memberCount}
-                <span>/25</span>
-              </strong>
-              <small>{RAID_SIZE - memberCount} open slots</small>
+          <div className="roster-meta">
+            <fieldset className="raid-size-picker">
+              <legend>Raid team</legend>
+              <div className="raid-size-options">
+                {RAID_SIZES.map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    aria-pressed={size === option}
+                    data-active={size === option || undefined}
+                    onClick={() => changeRaidSize(option)}
+                  >
+                    {raidSizeLabel(option)}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+            <div
+              className="roster-count"
+              aria-label={`${memberCount} of ${size} raid slots filled`}
+            >
+              <Users aria-hidden="true" />
+              <div>
+                <strong>
+                  {memberCount}
+                  <span>/{size}</span>
+                </strong>
+                <small>{size - memberCount} open slots</small>
+              </div>
             </div>
           </div>
         </section>
@@ -275,7 +353,9 @@ export function RaidPlanner({ state, onStateChange }: RaidPlannerProps) {
                 <p className="eyebrow">Your composition</p>
                 <h2 id="raid-groups-title">Raid groups</h2>
               </div>
-              <span>5 groups · 5 players each</span>
+              <span>
+                {groups} groups · {GROUP_SIZE} players each
+              </span>
             </div>
 
             {memberCount === 0 ? (
@@ -291,25 +371,22 @@ export function RaidPlanner({ state, onStateChange }: RaidPlannerProps) {
             ) : null}
 
             <div className="group-grid">
-              {Array.from(
-                { length: RAID_SIZE / GROUP_SIZE },
-                (_, groupIndex) => (
-                  <RaidGroup
-                    key={groupIndex}
-                    groupIndex={groupIndex}
-                    slots={state.slots.slice(
-                      groupIndex * GROUP_SIZE,
-                      groupIndex * GROUP_SIZE + GROUP_SIZE,
-                    )}
-                    onRemove={(slotIndex) =>
-                      onStateChange(removeMember(state, slotIndex))
-                    }
-                    onNameChange={(slotIndex, name) =>
-                      onStateChange(updateMemberName(state, slotIndex, name))
-                    }
-                  />
-                ),
-              )}
+              {Array.from({ length: groups }, (_, groupIndex) => (
+                <RaidGroup
+                  key={groupIndex}
+                  groupIndex={groupIndex}
+                  slots={state.slots.slice(
+                    groupIndex * GROUP_SIZE,
+                    groupIndex * GROUP_SIZE + GROUP_SIZE,
+                  )}
+                  onRemove={(slotIndex) =>
+                    onStateChange(removeMember(state, slotIndex))
+                  }
+                  onNameChange={(slotIndex, name) =>
+                    onStateChange(updateMemberName(state, slotIndex, name))
+                  }
+                />
+              ))}
             </div>
           </section>
         </main>
@@ -319,7 +396,7 @@ export function RaidPlanner({ state, onStateChange }: RaidPlannerProps) {
             Your roster lives in this URL. No account, save button, or database
             required.
           </p>
-          <span>TBC Classic party buffs are shown by specialization.</span>
+          <span>WoW - Forever party buffs are shown by specialization.</span>
         </footer>
       </div>
 
