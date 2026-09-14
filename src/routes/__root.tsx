@@ -15,10 +15,10 @@ export const Route = createRootRoute({
       {
         name: 'description',
         content:
-          'A clean, shareable TBC Classic raid composition and party buff planner.',
+          'A clean, shareable raid composition and party buff planner.',
       },
       {
-        title: 'justraidplanner · TBC Raid Planner',
+        title: 'justraidplanner · Raid Planner',
       },
     ],
     links: [
