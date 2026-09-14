@@ -1,6 +1,8 @@
 import { defineConfig, devices } from '@playwright/test'
 
 const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
+const port = process.env.E2E_PORT ?? '43127'
+const baseURL = `http://127.0.0.1:${port}`
 
 export default defineConfig({
   testDir: './e2e',
@@ -10,7 +12,7 @@ export default defineConfig({
     timeout: 5_000,
   },
   use: {
-    baseURL: 'http://127.0.0.1:43127',
+    baseURL,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
@@ -28,8 +30,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npm run dev',
-    url: 'http://127.0.0.1:43127',
+    command: `npx vite dev --host 0.0.0.0 --port ${port}`,
+    url: baseURL,
     reuseExistingServer: true,
   },
 })

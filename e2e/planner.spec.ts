@@ -5,7 +5,7 @@ test('builds, moves, shares, and restores a raid', async ({
   page,
 }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write'], {
-    origin: 'http://127.0.0.1:43127',
+    origin: `http://127.0.0.1:${process.env.E2E_PORT ?? '43127'}`,
   })
   await page.goto('/')
 
@@ -89,7 +89,7 @@ test('switches raid size, shares it, and restores from the URL', async ({
   page,
 }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write'], {
-    origin: 'http://127.0.0.1:43127',
+    origin: `http://127.0.0.1:${process.env.E2E_PORT ?? '43127'}`,
   })
   await page.goto('/')
   await page.waitForLoadState('networkidle')
