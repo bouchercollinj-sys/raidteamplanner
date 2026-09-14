@@ -69,6 +69,7 @@ test('builds, moves, shares, and restores a raid', async ({
 
   const sharedUrl = page.url()
   expect(sharedUrl).toContain('?raid=')
+  expect(sharedUrl).not.toContain('size=')
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
     sharedUrl,
   )
@@ -81,4 +82,65 @@ test('builds, moves, shares, and restores a raid', async ({
   ).toBeVisible()
   await expect(groups.nth(1).locator('input[value="Shadowmoon"]')).toBeVisible()
   await expect(groups.nth(1).getByText('Vampiric Touch')).toBeVisible()
+})
+
+test('switches raid size, shares it, and restores from the URL', async ({
+  context,
+  page,
+}) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], {
+    origin: 'http://127.0.0.1:43127',
+  })
+  await page.goto('/')
+  await page.waitForLoadState('networkidle')
+
+  await expect(
+    page.getByRole('radio', { name: '25-player raid' }),
+  ).toBeChecked()
+  await expect(page.locator('.raid-group')).toHaveCount(5)
+  await expect(
+    page.getByText('Arrange five parties', { exact: false }),
+  ).toBeVisible()
+
+  await page.getByRole('radio', { name: '20-player raid' }).click()
+  await expect(page).toHaveURL(/size=20/)
+  await expect(page.locator('.raid-group')).toHaveCount(4)
+  await expect(
+    page.getByText('Arrange four parties', { exact: false }),
+  ).toBeVisible()
+  await expect(page.getByLabel('0 of 20 raid slots filled')).toBeVisible()
+
+  await page.getByRole('radio', { name: '10-player raid' }).click()
+  await expect(page).toHaveURL(/size=10/)
+  await expect(page.locator('.raid-group')).toHaveCount(2)
+  await expect(
+    page.getByText('Arrange two parties', { exact: false }),
+  ).toBeVisible()
+  await expect(page.getByText('Your raid starts with one pick.')).toBeVisible()
+
+  await page
+    .getByTitle('Add Shadow Priest')
+    .evaluate((button: HTMLButtonElement) => button.click())
+  await expect(page.getByLabel('Player name')).toHaveCount(1)
+  await page.getByLabel('Player name').fill('Tenman')
+
+  await page.getByRole('button', { name: 'Copy share link' }).click()
+  await expect(page.getByRole('button', { name: 'Link copied' })).toBeVisible()
+
+  const sharedUrl = page.url()
+  expect(sharedUrl).toContain('size=10')
+  expect(sharedUrl).toContain('raid=')
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+    sharedUrl,
+  )
+
+  await page.goto('about:blank')
+  await page.goto(sharedUrl)
+
+  await expect(
+    page.getByRole('radio', { name: '10-player raid' }),
+  ).toBeChecked()
+  await expect(page.locator('.raid-group')).toHaveCount(2)
+  await expect(page.locator('input[value="Tenman"]')).toBeVisible()
+  await expect(page.getByLabel('1 of 10 raid slots filled')).toBeVisible()
 })

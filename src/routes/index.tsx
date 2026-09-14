@@ -2,17 +2,30 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { RaidPlanner } from '#/components/raid-planner'
 import { Button } from '#/components/ui/button'
-import { decodeRaid, encodeRaid, isRaidEmpty } from '#/lib/raid-state'
-import type { RaidState } from '#/lib/raid-state'
+import {
+  DEFAULT_RAID_SIZE,
+  decodeRaid,
+  encodeRaid,
+  getRaidSize,
+  isRaidEmpty,
+  parseRaidSize,
+} from '#/lib/raid-state'
+import type { RaidSize, RaidState } from '#/lib/raid-state'
 
 type PlannerSearch = {
   raid?: string
+  size?: RaidSize
 }
 
 export const Route = createFileRoute('/')({
-  validateSearch: (search: Record<string, unknown>): PlannerSearch => ({
-    raid: typeof search.raid === 'string' ? search.raid : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): PlannerSearch => {
+    const size = parseRaidSize(search.size)
+
+    return {
+      raid: typeof search.raid === 'string' ? search.raid : undefined,
+      size: size === DEFAULT_RAID_SIZE ? undefined : size,
+    }
+  },
   pendingComponent: PlannerLoading,
   component: PlannerRoute,
 })
@@ -20,11 +33,17 @@ export const Route = createFileRoute('/')({
 function PlannerRoute() {
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
-  const decoded = decodeRaid(search.raid)
+  const raidSize = parseRaidSize(search.size)
+  const decoded = decodeRaid(search.raid, raidSize)
 
   const setRaid = (state: RaidState) => {
+    const size = getRaidSize(state)
+
     void navigate({
-      search: { raid: isRaidEmpty(state) ? undefined : encodeRaid(state) },
+      search: {
+        raid: isRaidEmpty(state) ? undefined : encodeRaid(state),
+        size: size === DEFAULT_RAID_SIZE ? undefined : size,
+      },
       replace: true,
       resetScroll: false,
     })
@@ -40,7 +59,10 @@ function PlannerRoute() {
           <Button
             type="button"
             onClick={() => {
-              void navigate({ search: { raid: undefined }, replace: true })
+              void navigate({
+                search: { raid: undefined, size: undefined },
+                replace: true,
+              })
             }}
           >
             Start a fresh raid

@@ -31,14 +31,19 @@ import type { GroupBuff, SpecDefinition } from '#/data/specs'
 import {
   GROUP_SIZE,
   MAX_PLAYER_NAME_LENGTH,
-  RAID_SIZE,
+  RAID_SIZES,
   addSpecToFirstOpenSlot,
   addSpecToSlot,
+  createEmptyRaid,
+  getRaidSize,
   moveMember,
+  raidGroupCount,
+  raidPartyCountWord,
   removeMember,
+  resizeRaid,
   updateMemberName,
 } from '#/lib/raid-state'
-import type { RaidMember, RaidState } from '#/lib/raid-state'
+import type { RaidMember, RaidSize, RaidState } from '#/lib/raid-state'
 
 type DragData =
   { source: 'palette'; specId: string } | { source: 'slot'; slotIndex: number }
@@ -64,7 +69,10 @@ export function RaidPlanner({ state, onStateChange }: RaidPlannerProps) {
     }),
     useSensor(KeyboardSensor),
   )
+  const raidSize = getRaidSize(state)
+  const groupCount = raidGroupCount(raidSize)
   const memberCount = state.slots.filter(Boolean).length
+  const openSlots = raidSize - memberCount
 
   const addSpec = (specId: string) => {
     const nextState = addSpecToFirstOpenSlot(state, specId)
@@ -78,6 +86,25 @@ export function RaidPlanner({ state, onStateChange }: RaidPlannerProps) {
 
     onStateChange(nextState)
     setNotice(null)
+  }
+
+  const changeRaidSize = (size: RaidSize) => {
+    if (size === raidSize) {
+      return
+    }
+
+    const droppedCount = state.slots
+      .slice(size)
+      .filter((slot) => slot !== null).length
+
+    onStateChange(resizeRaid(state, size))
+    setNotice(
+      droppedCount === 0
+        ? null
+        : droppedCount === 1
+          ? '1 player did not fit in the smaller raid and was removed.'
+          : `${droppedCount} players did not fit in the smaller raid and were removed.`,
+    )
   }
 
   const handleDragStart = ({ active }: DragStartEvent) => {
@@ -148,14 +175,38 @@ export function RaidPlanner({ state, onStateChange }: RaidPlannerProps) {
     >
       <div className="planner-shell">
         <header className="planner-header">
-          <div className="brand-lockup">justraidplanner</div>
+          <div className="header-brand-row">
+            <div className="brand-lockup">justraidplanner</div>
+            <div className="raid-size-control">
+              <span className="raid-size-label" id="raid-size-label">
+                Raid size
+              </span>
+              <div
+                className="raid-size-switcher"
+                role="radiogroup"
+                aria-labelledby="raid-size-label"
+              >
+                {RAID_SIZES.map((size) => (
+                  <button
+                    key={size}
+                    type="button"
+                    role="radio"
+                    aria-checked={raidSize === size}
+                    aria-label={`${size}-player raid`}
+                    data-selected={raidSize === size || undefined}
+                    onClick={() => changeRaidSize(size)}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
           <div className="header-actions">
             <Button
               type="button"
               variant="outline"
-              onClick={() =>
-                onStateChange({ slots: Array(RAID_SIZE).fill(null) })
-              }
+              onClick={() => onStateChange(createEmptyRaid(raidSize))}
               disabled={memberCount === 0}
             >
               <RotateCcw />
@@ -170,24 +221,26 @@ export function RaidPlanner({ state, onStateChange }: RaidPlannerProps) {
 
         <section className="planner-intro">
           <div>
-            <p className="eyebrow">TBC Classic · 25-player raids</p>
+            <p className="eyebrow">{raidSize}-player raids</p>
             <h1>Build the raid around the people.</h1>
             <p className="intro-copy">
-              Arrange five parties, spot group buffs, and keep player names in
-              one link your team can open anywhere.
+              Arrange {raidPartyCountWord(raidSize)} parties, spot group buffs,
+              and keep player names in one link your team can open anywhere.
             </p>
           </div>
           <div
             className="roster-count"
-            aria-label={`${memberCount} of 25 raid slots filled`}
+            aria-label={`${memberCount} of ${raidSize} raid slots filled`}
           >
             <Users aria-hidden="true" />
             <div>
               <strong>
                 {memberCount}
-                <span>/25</span>
+                <span>/{raidSize}</span>
               </strong>
-              <small>{RAID_SIZE - memberCount} open slots</small>
+              <small>
+                {openSlots} open slot{openSlots === 1 ? '' : 's'}
+              </small>
             </div>
           </div>
         </section>
@@ -270,7 +323,9 @@ export function RaidPlanner({ state, onStateChange }: RaidPlannerProps) {
                 <p className="eyebrow">Your composition</p>
                 <h2 id="raid-groups-title">Raid groups</h2>
               </div>
-              <span>5 groups · 5 players each</span>
+              <span>
+                {groupCount} groups · {GROUP_SIZE} players each
+              </span>
             </div>
 
             {memberCount === 0 ? (
@@ -286,25 +341,22 @@ export function RaidPlanner({ state, onStateChange }: RaidPlannerProps) {
             ) : null}
 
             <div className="group-grid">
-              {Array.from(
-                { length: RAID_SIZE / GROUP_SIZE },
-                (_, groupIndex) => (
-                  <RaidGroup
-                    key={groupIndex}
-                    groupIndex={groupIndex}
-                    slots={state.slots.slice(
-                      groupIndex * GROUP_SIZE,
-                      groupIndex * GROUP_SIZE + GROUP_SIZE,
-                    )}
-                    onRemove={(slotIndex) =>
-                      onStateChange(removeMember(state, slotIndex))
-                    }
-                    onNameChange={(slotIndex, name) =>
-                      onStateChange(updateMemberName(state, slotIndex, name))
-                    }
-                  />
-                ),
-              )}
+              {Array.from({ length: groupCount }, (_, groupIndex) => (
+                <RaidGroup
+                  key={groupIndex}
+                  groupIndex={groupIndex}
+                  slots={state.slots.slice(
+                    groupIndex * GROUP_SIZE,
+                    groupIndex * GROUP_SIZE + GROUP_SIZE,
+                  )}
+                  onRemove={(slotIndex) =>
+                    onStateChange(removeMember(state, slotIndex))
+                  }
+                  onNameChange={(slotIndex, name) =>
+                    onStateChange(updateMemberName(state, slotIndex, name))
+                  }
+                />
+              ))}
             </div>
           </section>
         </main>

@@ -1,8 +1,17 @@
 import { specsById } from '#/data/specs'
 
-export const RAID_SIZE = 25
+export const RAID_SIZES = [10, 20, 25] as const
+export type RaidSize = (typeof RAID_SIZES)[number]
+export const DEFAULT_RAID_SIZE: RaidSize = 25
+export const RAID_SIZE = DEFAULT_RAID_SIZE
 export const GROUP_SIZE = 5
 export const MAX_PLAYER_NAME_LENGTH = 24
+
+const PARTY_COUNT_WORDS: Record<RaidSize, string> = {
+  10: 'two',
+  20: 'four',
+  25: 'five',
+}
 
 export type RaidMember = {
   id: string
@@ -23,8 +32,52 @@ export type DecodedRaid =
   | { ok: true; state: RaidState }
   | { ok: false; state: RaidState; message: string }
 
-export function createEmptyRaid(): RaidState {
-  return { slots: Array.from({ length: RAID_SIZE }, () => null) }
+export function isRaidSize(value: unknown): value is RaidSize {
+  return RAID_SIZES.some((size) => size === value)
+}
+
+export function parseRaidSize(value: unknown): RaidSize {
+  const numeric =
+    typeof value === 'number'
+      ? value
+      : typeof value === 'string'
+        ? Number(value)
+        : Number.NaN
+
+  return isRaidSize(numeric) ? numeric : DEFAULT_RAID_SIZE
+}
+
+export function getRaidSize(state: RaidState): RaidSize {
+  return parseRaidSize(state.slots.length)
+}
+
+export function raidGroupCount(size: RaidSize): number {
+  return size / GROUP_SIZE
+}
+
+export function raidPartyCountWord(size: RaidSize): string {
+  return PARTY_COUNT_WORDS[size]
+}
+
+export function createEmptyRaid(size: RaidSize = DEFAULT_RAID_SIZE): RaidState {
+  return { slots: Array.from({ length: size }, () => null) }
+}
+
+export function resizeRaid(state: RaidState, size: RaidSize): RaidState {
+  if (state.slots.length === size) {
+    return state
+  }
+
+  if (state.slots.length > size) {
+    return { slots: state.slots.slice(0, size) }
+  }
+
+  return {
+    slots: [
+      ...state.slots,
+      ...Array.from({ length: size - state.slots.length }, () => null),
+    ],
+  }
 }
 
 export function isRaidEmpty(state: RaidState) {
@@ -51,7 +104,7 @@ export function addSpecToSlot(
 ): RaidState | null {
   if (
     !specsById.has(specId) ||
-    !isValidSlotIndex(slotIndex) ||
+    !isValidSlotIndex(slotIndex, state.slots.length) ||
     state.slots[slotIndex]
   ) {
     return null
@@ -73,8 +126,8 @@ export function moveMember(
   toIndex: number,
 ): RaidState {
   if (
-    !isValidSlotIndex(fromIndex) ||
-    !isValidSlotIndex(toIndex) ||
+    !isValidSlotIndex(fromIndex, state.slots.length) ||
+    !isValidSlotIndex(toIndex, state.slots.length) ||
     fromIndex === toIndex ||
     !state.slots[fromIndex]
   ) {
@@ -96,7 +149,10 @@ export function moveMember(
 }
 
 export function removeMember(state: RaidState, slotIndex: number): RaidState {
-  if (!isValidSlotIndex(slotIndex) || state.slots[slotIndex] === null) {
+  if (
+    !isValidSlotIndex(slotIndex, state.slots.length) ||
+    state.slots[slotIndex] === null
+  ) {
     return state
   }
 
@@ -143,13 +199,16 @@ export function encodeRaid(state: RaidState): string {
     .replace(/=+$/, '')
 }
 
-export function decodeRaid(value?: string): DecodedRaid {
+export function decodeRaid(
+  value?: string,
+  size: RaidSize = DEFAULT_RAID_SIZE,
+): DecodedRaid {
   if (!value) {
-    return { ok: true, state: createEmptyRaid() }
+    return { ok: true, state: createEmptyRaid(size) }
   }
 
   if (value.length > 8_192 || !/^[A-Za-z0-9_-]+$/.test(value)) {
-    return invalidRaid()
+    return invalidRaid(size)
   }
 
   try {
@@ -164,7 +223,7 @@ export function decodeRaid(value?: string): DecodedRaid {
     const parsed = JSON.parse(new TextDecoder().decode(bytes)) as unknown
 
     if (!isEncodedRaid(parsed)) {
-      return invalidRaid()
+      return invalidRaid(size)
     }
 
     const slots = Array.from({ length: RAID_SIZE }, (_, index) => {
@@ -181,9 +240,9 @@ export function decodeRaid(value?: string): DecodedRaid {
       }
     })
 
-    return { ok: true, state: { slots } }
+    return { ok: true, state: resizeRaid({ slots }, size) }
   } catch {
-    return invalidRaid()
+    return invalidRaid(size)
   }
 }
 
@@ -215,14 +274,14 @@ function memberId(slotIndex: number, specId: string) {
   return `member-${slotIndex}-${specId}`
 }
 
-function isValidSlotIndex(slotIndex: number) {
-  return Number.isInteger(slotIndex) && slotIndex >= 0 && slotIndex < RAID_SIZE
+function isValidSlotIndex(slotIndex: number, size: number) {
+  return Number.isInteger(slotIndex) && slotIndex >= 0 && slotIndex < size
 }
 
-function invalidRaid(): DecodedRaid {
+function invalidRaid(size: RaidSize = DEFAULT_RAID_SIZE): DecodedRaid {
   return {
     ok: false,
-    state: createEmptyRaid(),
+    state: createEmptyRaid(size),
     message:
       'This shared setup could not be read. The link may be incomplete or outdated.',
   }
