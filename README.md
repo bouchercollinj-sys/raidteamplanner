@@ -1,8 +1,8 @@
 # WoW Forever Planner
 
-A minimal, shareable TBC Classic raid team planner. Build five groups of five,
-name every player, move or swap slots with drag-and-drop, and review the
-specialization buffs active in each party.
+A minimal, shareable TBC Classic raid team planner. Choose a 10, 20, 25, or
+40 player raid team, name every player, move or swap slots with drag-and-drop,
+and review the specialization buffs active in each party.
 
 The complete raid composition is encoded in the URL. Copying the URL is all that
 is needed to save or share a setup; there is no account, database, or server-side

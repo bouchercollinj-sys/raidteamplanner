@@ -173,6 +173,64 @@ input:focus-visible {
   padding: 54px 0 38px;
 }
 
+.roster-meta {
+  display: grid;
+  width: min(100%, 360px);
+  gap: 12px;
+}
+
+.raid-size-picker {
+  margin: 0;
+  padding: 14px 15px 15px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(251, 250, 246, 0.64);
+  min-inline-size: 0;
+}
+
+.raid-size-picker legend {
+  padding: 0;
+  color: var(--moss);
+  font-size: 0.62rem;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.raid-size-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.raid-size-options button {
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  color: var(--ink-soft);
+  background: var(--surface-raised);
+  box-shadow: 0 1px 1px var(--shadow);
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 620;
+  line-height: 1.25;
+  text-align: left;
+}
+
+.raid-size-options button:hover {
+  border-color: color-mix(in srgb, var(--moss) 35%, var(--line-strong));
+  color: var(--ink);
+}
+
+.raid-size-options button[data-active] {
+  border-color: #5f806f;
+  color: #2f4f40;
+  background: var(--moss-soft);
+  box-shadow: 0 0 0 2px rgba(52, 95, 77, 0.12);
+}
+
 .eyebrow {
   margin: 0 0 12px;
   color: var(--moss);
@@ -950,6 +1008,7 @@ footer p {
     max-width: 520px;
   }
 
+  .roster-meta,
   .roster-count {
     width: 100%;
   }

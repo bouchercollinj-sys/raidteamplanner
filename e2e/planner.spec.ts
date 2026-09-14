@@ -1,5 +1,38 @@
 import { expect, test } from '@playwright/test'
 
+test('switches between 10, 20, 25, and 40 player raid teams', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await expect(
+    page.getByRole('heading', { name: 'Build the raid around the people.' }),
+  ).toBeVisible()
+  await page.waitForLoadState('networkidle')
+
+  await expect(
+    page.getByRole('button', { name: '25 player raid team' }),
+  ).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.locator('.raid-group')).toHaveCount(5)
+
+  await page.getByRole('button', { name: '10 player raid team' }).click()
+  await expect(page.locator('.raid-group')).toHaveCount(2)
+  await expect(page.getByRole('heading', { name: 'Group 2' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Group 3' })).toHaveCount(0)
+  await expect(page.getByLabel('0 of 10 raid slots filled')).toBeVisible()
+  await expect(page).toHaveURL(/raid=/)
+
+  await page.getByRole('button', { name: '20 player raid team' }).click()
+  await expect(page.locator('.raid-group')).toHaveCount(4)
+
+  await page.getByRole('button', { name: '40 player raid team' }).click()
+  await expect(page.locator('.raid-group')).toHaveCount(8)
+  await expect(page.getByRole('heading', { name: 'Group 8' })).toBeVisible()
+
+  await page.getByRole('button', { name: '25 player raid team' }).click()
+  await expect(page.locator('.raid-group')).toHaveCount(5)
+  await expect(page).not.toHaveURL(/raid=/)
+})
+
 test('builds, moves, shares, and restores a raid', async ({
   context,
   page,

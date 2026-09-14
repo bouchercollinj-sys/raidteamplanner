@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { RaidPlanner } from '#/components/raid-planner'
 import { Button } from '#/components/ui/button'
-import { decodeRaid, encodeRaid, isRaidEmpty } from '#/lib/raid-state'
+import { decodeRaid, encodeRaid, shouldPersistRaid } from '#/lib/raid-state'
 import type { RaidState } from '#/lib/raid-state'
 
 type PlannerSearch = {
@@ -24,7 +24,9 @@ function PlannerRoute() {
 
   const setRaid = (state: RaidState) => {
     void navigate({
-      search: { raid: isRaidEmpty(state) ? undefined : encodeRaid(state) },
+      search: {
+        raid: shouldPersistRaid(state) ? encodeRaid(state) : undefined,
+      },
       replace: true,
       resetScroll: false,
     })
