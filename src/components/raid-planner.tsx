@@ -38,7 +38,6 @@ import {
   getRaidSize,
   moveMember,
   raidGroupCount,
-  raidPartyCountWord,
   removeMember,
   resizeRaid,
   updateMemberName,
@@ -223,10 +222,6 @@ export function RaidPlanner({ state, onStateChange }: RaidPlannerProps) {
           <div>
             <p className="eyebrow">{raidSize}-player raids</p>
             <h1>Build the raid around the people.</h1>
-            <p className="intro-copy">
-              Arrange {raidPartyCountWord(raidSize)} parties, spot group buffs,
-              and keep player names in one link your team can open anywhere.
-            </p>
           </div>
           <div
             className="roster-count"

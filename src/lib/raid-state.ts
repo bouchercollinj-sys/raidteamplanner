@@ -7,12 +7,6 @@ export const RAID_SIZE = DEFAULT_RAID_SIZE
 export const GROUP_SIZE = 5
 export const MAX_PLAYER_NAME_LENGTH = 24
 
-const PARTY_COUNT_WORDS: Record<RaidSize, string> = {
-  10: 'two',
-  20: 'four',
-  25: 'five',
-}
-
 export type RaidMember = {
   id: string
   specId: string
@@ -53,10 +47,6 @@ export function getRaidSize(state: RaidState): RaidSize {
 
 export function raidGroupCount(size: RaidSize): number {
   return size / GROUP_SIZE
-}
-
-export function raidPartyCountWord(size: RaidSize): string {
-  return PARTY_COUNT_WORDS[size]
 }
 
 export function createEmptyRaid(size: RaidSize = DEFAULT_RAID_SIZE): RaidState {

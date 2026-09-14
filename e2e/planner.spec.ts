@@ -99,24 +99,27 @@ test('switches raid size, shares it, and restores from the URL', async ({
   ).toBeChecked()
   await expect(page.locator('.raid-group')).toHaveCount(5)
   await expect(
-    page.getByText('Arrange five parties', { exact: false }),
+    page.getByRole('heading', { name: 'Build the raid around the people.' }),
   ).toBeVisible()
+  await expect(page.getByText('Arrange five parties')).toHaveCount(0)
 
   await page.getByRole('radio', { name: '20-player raid' }).click()
   await expect(page).toHaveURL(/size=20/)
   await expect(page.locator('.raid-group')).toHaveCount(4)
-  await expect(
-    page.getByText('Arrange four parties', { exact: false }),
-  ).toBeVisible()
+  await expect(page.getByText('Arrange four parties')).toHaveCount(0)
   await expect(page.getByLabel('0 of 20 raid slots filled')).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Build the raid around the people.' }),
+  ).toBeVisible()
 
   await page.getByRole('radio', { name: '10-player raid' }).click()
   await expect(page).toHaveURL(/size=10/)
   await expect(page.locator('.raid-group')).toHaveCount(2)
-  await expect(
-    page.getByText('Arrange two parties', { exact: false }),
-  ).toBeVisible()
+  await expect(page.getByText('Arrange two parties')).toHaveCount(0)
   await expect(page.getByText('Your raid starts with one pick.')).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Build the raid around the people.' }),
+  ).toBeVisible()
 
   await page
     .getByTitle('Add Shadow Priest')

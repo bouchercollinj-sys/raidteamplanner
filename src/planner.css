@@ -235,14 +235,6 @@ input:focus-visible {
   line-height: 0.99;
 }
 
-.intro-copy {
-  max-width: 640px;
-  margin: 22px 0 0;
-  color: var(--ink-soft);
-  font-size: 1rem;
-  line-height: 1.7;
-}
-
 .roster-count {
   display: flex;
   min-width: 178px;
@@ -1042,10 +1034,6 @@ footer p {
 
   .planner-intro h1 {
     font-size: 2.65rem;
-  }
-
-  .intro-copy {
-    font-size: 0.9rem;
   }
 
   .section-heading {
