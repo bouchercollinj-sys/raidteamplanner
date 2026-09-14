@@ -34,9 +34,6 @@ function PlannerRoute() {
     return (
       <main className="route-state">
         <div className="route-state-card" role="alert">
-          <span className="brand-mark" aria-hidden="true">
-            WF
-          </span>
           <p className="eyebrow">Shared setup error</p>
           <h1>We could not open this roster.</h1>
           <p>{decoded.message}</p>

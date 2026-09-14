@@ -148,12 +148,7 @@ export function RaidPlanner({ state, onStateChange }: RaidPlannerProps) {
     >
       <div className="planner-shell">
         <header className="planner-header">
-          <div className="brand-lockup" aria-label="WoW Forever Planner">
-            <span className="brand-mark" aria-hidden="true">
-              WF
-            </span>
-            <span>WoW Forever</span>
-          </div>
+          <div className="brand-lockup">justraidplanner</div>
           <div className="header-actions">
             <Button
               type="button"

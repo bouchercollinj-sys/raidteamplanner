@@ -129,28 +129,9 @@ input:focus-visible {
 }
 
 .brand-lockup {
-  display: flex;
-  align-items: center;
-  gap: 11px;
   color: var(--ink);
-  font-size: 0.86rem;
+  font-size: 0.95rem;
   font-weight: 680;
-  letter-spacing: -0.01em;
-}
-
-.brand-mark {
-  display: inline-grid;
-  width: 36px;
-  height: 36px;
-  place-items: center;
-  border: 1px solid #274c3d;
-  border-radius: 8px;
-  color: #f8f5ec;
-  background: var(--moss);
-  box-shadow: 0 1px 1px rgba(31, 55, 45, 0.16);
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 0.75rem;
-  font-weight: 700;
   letter-spacing: -0.02em;
 }
 
@@ -829,10 +810,6 @@ footer p {
   box-shadow: 0 8px 28px var(--shadow);
 }
 
-.route-state-card .brand-mark {
-  margin-bottom: 34px;
-}
-
 .route-state-card h1 {
   margin-bottom: 18px;
   font-size: clamp(2.2rem, 7vw, 3.9rem);
@@ -925,10 +902,6 @@ footer p {
     align-items: flex-start;
     gap: 12px;
     padding-bottom: 14px;
-  }
-
-  .brand-lockup > span:last-child {
-    display: none;
   }
 
   .header-actions {
