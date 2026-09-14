@@ -115,3 +115,48 @@ test('builds, moves, shares, and restores a raid', async ({
   await expect(groups.nth(1).locator('input[value="Shadowmoon"]')).toBeVisible()
   await expect(groups.nth(1).getByText('Vampiric Touch')).toBeVisible()
 })
+
+test('saves a signed-in raid preset and opens the share link', async ({
+  browser,
+  page,
+}) => {
+  await page.goto('/')
+  await expect(
+    page.getByRole('heading', { name: 'Build the raid around the people.' }),
+  ).toBeVisible()
+  await page.waitForLoadState('networkidle')
+
+  await page.getByRole('link', { name: 'Sign in' }).click()
+  await page.getByRole('button', { name: 'Create one' }).click()
+
+  const email = `raider-${Date.now()}@example.com`
+  await page.getByLabel('Name').fill('Collin')
+  await page.getByLabel('Email').fill(email)
+  await page.getByLabel('Password').fill('password12')
+  await page.getByRole('button', { name: 'Create account' }).click()
+
+  await expect(page.getByRole('button', { name: 'Save preset' })).toBeVisible()
+  await page
+    .getByTitle('Add Shadow Priest')
+    .evaluate((button: HTMLButtonElement) => button.click())
+  await expect(page.getByLabel('Player name')).toHaveCount(1)
+
+  await page.getByRole('button', { name: 'Save preset' }).click()
+  await page.getByLabel('Preset name').fill('Kara group')
+  await page.getByRole('button', { name: 'Save raid team' }).click()
+
+  await expect(page).toHaveURL(/\/p\/[0-9a-f]{16}/)
+  await expect(page.getByLabel('Player name')).toHaveValue('')
+
+  const shareUrl = page.url()
+  const guestPage = await browser.newPage()
+  await guestPage.goto(shareUrl)
+  await expect(
+    guestPage.getByRole('heading', {
+      name: 'Build the raid around the people.',
+    }),
+  ).toBeVisible()
+  await expect(guestPage.getByText('Shadow Priest')).toBeVisible()
+  await expect(guestPage.getByRole('link', { name: 'Sign in' })).toBeVisible()
+  await guestPage.close()
+})

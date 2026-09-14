@@ -136,6 +136,7 @@ input:focus-visible {
   font-size: 0.86rem;
   font-weight: 680;
   letter-spacing: -0.01em;
+  text-decoration: none;
 }
 
 .brand-mark {
@@ -158,11 +159,159 @@ input:focus-visible {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
+.header-actions a,
 .header-actions button {
   border-color: var(--line-strong);
   box-shadow: 0 1px 1px var(--shadow);
+}
+
+.account-controls {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.account-name {
+  max-width: 140px;
+  overflow: hidden;
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  font-weight: 620;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 30;
+  display: grid;
+  width: min(340px, calc(100vw - 40px));
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-raised);
+  box-shadow: 0 12px 32px rgba(48, 42, 32, 0.14);
+}
+
+.account-panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.account-panel-heading strong {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.account-panel-heading button {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border: 0;
+  border-radius: 5px;
+  color: var(--ink-faint);
+  background: transparent;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.account-panel p,
+.auth-switch {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+.account-error {
+  color: #774132 !important;
+}
+
+.preset-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.preset-list li {
+  display: grid;
+  gap: 8px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.preset-list li:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.preset-list strong {
+  display: block;
+  font-size: 0.8rem;
+}
+
+.preset-list span {
+  color: var(--ink-faint);
+  font-size: 0.62rem;
+}
+
+.preset-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.preset-actions button {
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  color: var(--ink-soft);
+  background: var(--surface);
+  box-shadow: none;
+  cursor: pointer;
+  font-size: 0.68rem;
+}
+
+.auth-card .brand-lockup {
+  margin-bottom: 28px;
+  width: fit-content;
+  text-decoration: none;
+}
+
+.auth-form,
+.auth-field {
+  display: grid;
+  gap: 8px;
+}
+
+.auth-form {
+  margin: 8px 0 18px;
+}
+
+.auth-switch button {
+  border: 0;
+  padding: 0;
+  color: var(--moss);
+  background: transparent;
+  box-shadow: none;
+  cursor: pointer;
+  font-weight: 650;
 }
 
 .planner-intro {

@@ -10,6 +10,7 @@ import {
   useSensors,
 } from '@dnd-kit/core'
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core'
+import { Link } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
 import {
   Check,
@@ -28,6 +29,7 @@ import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import { specClasses, specsById } from '#/data/specs'
 import type { GroupBuff, SpecDefinition } from '#/data/specs'
+import { AccountControls } from '#/components/account-controls'
 import {
   GROUP_SIZE,
   MAX_PLAYER_NAME_LENGTH,
@@ -44,6 +46,7 @@ import {
   updateMemberName,
 } from '#/lib/raid-state'
 import type { RaidMember, RaidSize, RaidState } from '#/lib/raid-state'
+import type { SavedPresetSummary, SessionUser } from '#/lib/preset-functions'
 
 type DragData =
   { source: 'palette'; specId: string } | { source: 'slot'; slotIndex: number }
@@ -51,9 +54,30 @@ type DragData =
 type RaidPlannerProps = {
   state: RaidState
   onStateChange: (state: RaidState) => void
+  user: SessionUser | null
+  presets: Array<SavedPresetSummary>
+  currentSlug?: string
+  onPresetsChange: (presets: Array<SavedPresetSummary>) => void
+  onOpenPreset: (slug: string) => void
+  onSavePreset: (name: string) => Promise<SavedPresetSummary>
+  onUpdatePreset?: (name?: string) => Promise<SavedPresetSummary>
+  onDeletePreset: (slug: string) => Promise<void>
+  onSignedOut: () => void
 }
 
-export function RaidPlanner({ state, onStateChange }: RaidPlannerProps) {
+export function RaidPlanner({
+  state,
+  onStateChange,
+  user,
+  presets,
+  currentSlug,
+  onPresetsChange,
+  onOpenPreset,
+  onSavePreset,
+  onUpdatePreset,
+  onDeletePreset,
+  onSignedOut,
+}: RaidPlannerProps) {
   const [activeDrag, setActiveDrag] = useState<DragData | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [shareStatus, setShareStatus] = useState<'idle' | 'copied' | 'error'>(
@@ -144,9 +168,12 @@ export function RaidPlanner({ state, onStateChange }: RaidPlannerProps) {
     setNotice(null)
   }
 
-  const copyShareLink = async () => {
+  const copyShareLink = async (path?: string) => {
     try {
-      await copyText(window.location.href)
+      const url = path
+        ? new URL(path, window.location.origin).toString()
+        : window.location.href
+      await copyText(url)
       setShareStatus('copied')
       window.setTimeout(() => setShareStatus('idle'), 5_000)
     } catch {
@@ -173,13 +200,26 @@ export function RaidPlanner({ state, onStateChange }: RaidPlannerProps) {
     >
       <div className="planner-shell">
         <header className="planner-header">
-          <div className="brand-lockup" aria-label="justraidplanner">
+          <Link to="/" className="brand-lockup" aria-label="justraidplanner">
             <span className="brand-mark" aria-hidden="true">
               WF
             </span>
             <span>justraidplanner</span>
-          </div>
+          </Link>
           <div className="header-actions">
+            <AccountControls
+              user={user}
+              presets={presets}
+              raid={state}
+              currentSlug={currentSlug}
+              onPresetsChange={onPresetsChange}
+              onOpenPreset={onOpenPreset}
+              onSave={async (name) => onSavePreset(name)}
+              onUpdate={onUpdatePreset}
+              onDelete={onDeletePreset}
+              onCopySharePath={(path) => copyShareLink(path)}
+              onSignedOut={onSignedOut}
+            />
             <Button
               type="button"
               variant="outline"
@@ -189,7 +229,7 @@ export function RaidPlanner({ state, onStateChange }: RaidPlannerProps) {
               <RotateCcw />
               Reset
             </Button>
-            <Button type="button" onClick={copyShareLink}>
+            <Button type="button" onClick={() => void copyShareLink()}>
               {shareStatus === 'copied' ? <Check /> : <Link2 />}
               {shareStatus === 'copied' ? 'Link copied' : 'Copy share link'}
             </Button>
