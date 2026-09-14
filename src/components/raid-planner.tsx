@@ -200,11 +200,8 @@ export function RaidPlanner({
     >
       <div className="planner-shell">
         <header className="planner-header">
-          <Link to="/" className="brand-lockup" aria-label="justraidplanner">
-            <span className="brand-mark" aria-hidden="true">
-              WF
-            </span>
-            <span>justraidplanner</span>
+          <Link to="/" className="brand-lockup">
+            justraidplanner
           </Link>
           <div className="header-actions">
             <AccountControls

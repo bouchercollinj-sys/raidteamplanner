@@ -34,11 +34,8 @@ function SignInPage() {
   return (
     <main className="route-state">
       <div className="route-state-card auth-card">
-        <Link to="/" className="brand-lockup" aria-label="justraidplanner">
-          <span className="brand-mark" aria-hidden="true">
-            WF
-          </span>
-          <span>justraidplanner</span>
+        <Link to="/" className="brand-lockup">
+          justraidplanner
         </Link>
         <p className="eyebrow">
           {mode === 'signin' ? 'Welcome back' : 'Create account'}

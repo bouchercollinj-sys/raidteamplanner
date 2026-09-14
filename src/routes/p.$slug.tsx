@@ -28,9 +28,6 @@ function SharedPresetRoute() {
     return (
       <main className="route-state">
         <div className="route-state-card" role="alert">
-          <span className="brand-mark" aria-hidden="true">
-            WF
-          </span>
           <p className="eyebrow">Saved raid</p>
           <h1>This raid team could not be found.</h1>
           <p>
@@ -51,9 +48,6 @@ function SharedPresetRoute() {
     return (
       <main className="route-state">
         <div className="route-state-card" role="alert">
-          <span className="brand-mark" aria-hidden="true">
-            WF
-          </span>
           <p className="eyebrow">Saved raid</p>
           <h1>This saved roster could not be read.</h1>
           <p>{decoded.message}</p>
