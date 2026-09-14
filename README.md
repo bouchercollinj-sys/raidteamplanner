@@ -1,6 +1,6 @@
 # WoW Forever Planner
 
-A minimal, shareable TBC Classic raid team planner. Choose a 10, 20, 25, or
+A minimal, shareable WoW - Forever raid team planner. Choose a 10, 20, 25, or
 40 player raid team, name every player, move or swap slots with drag-and-drop,
 and review the specialization buffs active in each party.
 

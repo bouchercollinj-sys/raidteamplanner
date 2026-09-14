@@ -198,7 +198,7 @@ export function RaidPlanner({ state, onStateChange }: RaidPlannerProps) {
 
         <section className="planner-intro">
           <div>
-            <p className="eyebrow">TBC Classic · {size}-player raids</p>
+            <p className="eyebrow">WoW - Forever · {size}-player raids</p>
             <h1>Build the raid around the people.</h1>
             <p className="intro-copy">
               Arrange {groups} parties, spot group buffs, and keep player names
@@ -359,7 +359,7 @@ export function RaidPlanner({ state, onStateChange }: RaidPlannerProps) {
             Your roster lives in this URL. No account, save button, or database
             required.
           </p>
-          <span>TBC Classic party buffs are shown by specialization.</span>
+          <span>WoW - Forever party buffs are shown by specialization.</span>
         </footer>
       </div>
 

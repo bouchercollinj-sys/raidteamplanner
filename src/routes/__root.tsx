@@ -15,7 +15,7 @@ export const Route = createRootRoute({
       {
         name: 'description',
         content:
-          'A clean, shareable TBC Classic raid composition and party buff planner.',
+          'A clean, shareable WoW - Forever raid composition and party buff planner.',
       },
       {
         title: 'WoW Forever · TBC Raid Planner',
