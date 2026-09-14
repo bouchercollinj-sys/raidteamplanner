@@ -24,6 +24,11 @@ import {
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { CSSProperties, MutableRefObject } from 'react'
 
+import { AuthMenu } from '#/components/auth-menu'
+import {
+  PresetMenu,
+  SaveRaidButton,
+} from '#/components/preset-menu'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import { specClasses, specsById } from '#/data/specs'
@@ -43,6 +48,7 @@ import {
   updateMemberName,
 } from '#/lib/raid-state'
 import type { RaidMember, RaidSize, RaidState } from '#/lib/raid-state'
+import type { AuthUser } from '#/lib/session'
 
 type DragData =
   { source: 'palette'; specId: string } | { source: 'slot'; slotIndex: number }
@@ -50,9 +56,14 @@ type DragData =
 type RaidPlannerProps = {
   state: RaidState
   onStateChange: (state: RaidState) => void
+  user: AuthUser | null
 }
 
-export function RaidPlanner({ state, onStateChange }: RaidPlannerProps) {
+export function RaidPlanner({
+  state,
+  onStateChange,
+  user,
+}: RaidPlannerProps) {
   const [activeDrag, setActiveDrag] = useState<DragData | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [shareStatus, setShareStatus] = useState<'idle' | 'copied' | 'error'>(
@@ -172,7 +183,8 @@ export function RaidPlanner({ state, onStateChange }: RaidPlannerProps) {
       }}
       onDragEnd={handleDragEnd}
     >
-      <div className="planner-shell">
+      <PresetMenu user={user} state={state}>
+        <div className="planner-shell">
         <header className="planner-header">
           <div className="header-brand-row">
             <div className="brand-lockup">justraidplanner</div>
@@ -201,20 +213,23 @@ export function RaidPlanner({ state, onStateChange }: RaidPlannerProps) {
               </div>
             </div>
           </div>
-          <div className="header-actions">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onStateChange(createEmptyRaid(raidSize))}
-              disabled={memberCount === 0}
-            >
-              <RotateCcw />
-              Reset
-            </Button>
-            <Button type="button" onClick={copyShareLink}>
-              {shareStatus === 'copied' ? <Check /> : <Link2 />}
-              {shareStatus === 'copied' ? 'Link copied' : 'Copy share link'}
-            </Button>
+          <div className="header-toolbar">
+            <div className="header-actions">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onStateChange(createEmptyRaid(raidSize))}
+                disabled={memberCount === 0}
+              >
+                <RotateCcw />
+                Reset
+              </Button>
+              <Button type="button" onClick={copyShareLink}>
+                {shareStatus === 'copied' ? <Check /> : <Link2 />}
+                {shareStatus === 'copied' ? 'Link copied' : 'Copy share link'}
+              </Button>
+            </div>
+            <AuthMenu user={user} />
           </div>
         </header>
 
@@ -316,7 +331,10 @@ export function RaidPlanner({ state, onStateChange }: RaidPlannerProps) {
             <div className="section-heading raid-heading">
               <div>
                 <p className="eyebrow">Your composition</p>
-                <h2 id="raid-groups-title">Raid groups</h2>
+                <div className="raid-heading-title">
+                  <h2 id="raid-groups-title">Raid groups</h2>
+                  <SaveRaidButton />
+                </div>
               </div>
               <span>
                 {groupCount} groups · {GROUP_SIZE} players each
@@ -358,12 +376,14 @@ export function RaidPlanner({ state, onStateChange }: RaidPlannerProps) {
 
         <footer>
           <p>
-            Your roster lives in this URL. No account, save button, or database
-            required.
+            {user
+              ? 'Your roster lives in this URL, and signed-in profiles can also save named presets.'
+              : 'Your roster lives in this URL. Create a profile if you want named presets on this device and others.'}
           </p>
           <span>Party buffs are shown by specialization.</span>
         </footer>
-      </div>
+        </div>
+      </PresetMenu>
 
       <DragOverlay dropAnimation={null}>
         {activeSpec ? <SpecDragPreview spec={activeSpec} /> : null}

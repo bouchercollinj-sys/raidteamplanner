@@ -1,8 +1,17 @@
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
 
+import { getSession } from '#/lib/auth.functions'
+
 import appCss from '../planner.css?url'
 
 export const Route = createRootRoute({
+  beforeLoad: async ({ location }) => {
+    if (location.pathname.startsWith('/api/')) {
+      return { user: null }
+    }
+
+    return { user: await getSession() }
+  },
   head: () => ({
     meta: [
       {

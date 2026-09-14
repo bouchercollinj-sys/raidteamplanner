@@ -7,6 +7,17 @@
   "observability": {
     "enabled": true,
   },
+  "vars": {
+    "BETTER_AUTH_URL": "https://justanotherplanner.com",
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "justraidplanner",
+      "database_id": "ae811358-527a-436f-be8f-0e32f5da00ea",
+      "migrations_dir": "drizzle",
+    },
+  ],
   "routes": [
     {
       "pattern": "justanotherplanner.com",

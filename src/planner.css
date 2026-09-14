@@ -128,6 +128,14 @@ input:focus-visible {
   border-bottom: 1px solid var(--line);
 }
 
+.header-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
 .header-brand-row {
   display: flex;
   min-width: 0;
@@ -141,6 +149,11 @@ input:focus-visible {
   font-size: 0.95rem;
   font-weight: 680;
   letter-spacing: -0.02em;
+  text-decoration: none;
+}
+
+a.brand-lockup:hover {
+  color: var(--moss);
 }
 
 .raid-size-control {
@@ -195,15 +208,251 @@ input:focus-visible {
   background: color-mix(in srgb, var(--moss) 88%, black);
 }
 
-.header-actions {
+.header-actions,
+.header-account {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.header-actions button {
+.header-actions button,
+.header-account button {
   border-color: var(--line-strong);
   box-shadow: 0 1px 1px var(--shadow);
+}
+
+.account-chip {
+  max-width: 180px;
+  overflow: hidden;
+  padding: 7px 11px;
+  border: 1px solid #cad8cd;
+  border-radius: 999px;
+  color: var(--moss);
+  background: var(--moss-soft);
+  font-size: 0.74rem;
+  font-weight: 650;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-chip:hover {
+  background: #dce8df;
+}
+
+.planner-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(37, 36, 31, 0.28);
+}
+
+.planner-modal {
+  width: min(560px, 100%);
+  max-height: min(84vh, 720px);
+  overflow: auto;
+  padding: 22px 22px 24px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: 0 18px 48px rgba(48, 42, 32, 0.18);
+}
+
+.planner-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.planner-modal h2 {
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.85rem;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+
+.planner-modal-close {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  color: var(--ink-soft);
+  background: transparent;
+  cursor: pointer;
+}
+
+.planner-modal-close:hover {
+  background: var(--paper-deep);
+}
+
+.planner-modal-close svg {
+  width: 16px;
+  height: 16px;
+}
+
+.preset-gate,
+.preset-empty {
+  display: grid;
+  gap: 14px;
+}
+
+.preset-gate p,
+.preset-empty p,
+.auth-lead {
+  margin: 0 0 8px;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+
+.preset-list ul {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.preset-list li {
+  display: grid;
+  gap: 10px;
+  padding: 12px 13px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-raised);
+}
+
+.preset-list strong {
+  display: block;
+  font-size: 0.92rem;
+}
+
+.preset-list span {
+  color: var(--ink-faint);
+  font-size: 0.7rem;
+}
+
+.preset-actions,
+.preset-rename,
+.account-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.auth-page {
+  width: min(720px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 24px 0 64px;
+}
+
+.auth-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+.auth-card {
+  margin-top: 48px;
+  padding: clamp(28px, 6vw, 48px);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: 0 8px 28px var(--shadow);
+}
+
+.auth-card h1 {
+  max-width: 18ch;
+  margin: 0 0 22px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(2.1rem, 6vw, 3.4rem);
+  font-weight: 500;
+  letter-spacing: -0.045em;
+  line-height: 1;
+}
+
+.auth-form,
+.auth-field {
+  display: grid;
+  gap: 8px;
+}
+
+.auth-form {
+  gap: 16px;
+}
+
+.auth-field label {
+  color: var(--ink-soft);
+  font-size: 0.74rem;
+}
+
+.auth-field input {
+  height: 42px;
+  border-color: var(--line-strong);
+  background: var(--surface-raised);
+}
+
+.auth-error {
+  margin: 0;
+  color: #774132;
+  font-size: 0.82rem;
+}
+
+.auth-notice {
+  margin: 0 0 12px;
+  color: #345344;
+  font-size: 0.82rem;
+}
+
+.auth-switch {
+  margin: 18px 0 0;
+  color: var(--ink-soft);
+  font-size: 0.84rem;
+}
+
+.auth-switch a,
+.auth-card a {
+  color: var(--moss);
+}
+
+.account-actions {
+  margin-top: 22px;
+}
+
+.account-password,
+.saved-raids-section {
+  margin-top: 32px;
+  padding-top: 28px;
+  border-top: 1px solid var(--line);
+}
+
+.account-password .eyebrow,
+.saved-raids-section .eyebrow {
+  margin-bottom: 6px;
+}
+
+.account-password h2,
+.saved-raids-section h2 {
+  margin: 0 0 16px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.55rem;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+
+.account-password .auth-lead {
+  margin-bottom: 16px;
 }
 
 .planner-intro {
@@ -385,6 +634,26 @@ input:focus-visible {
   font-size: 1.55rem;
   font-weight: 500;
   letter-spacing: -0.03em;
+}
+
+.raid-heading-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.save-raid-button {
+  width: 32px;
+  height: 32px;
+  border-color: var(--line-strong);
+  color: var(--moss);
+  background: var(--surface-raised);
+  box-shadow: 0 1px 1px var(--shadow);
+}
+
+.save-raid-button:hover {
+  color: var(--moss);
+  background: var(--moss-soft);
 }
 
 .section-heading > span {
@@ -957,18 +1226,31 @@ footer p {
     padding-bottom: 14px;
   }
 
+  .header-toolbar,
+  .header-actions,
+  .header-account {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
   .header-brand-row {
     width: 100%;
     justify-content: space-between;
   }
 
-  .header-actions {
+  .header-actions,
+  .header-account {
     flex-wrap: wrap;
     justify-content: flex-end;
   }
 
-  .header-actions button {
+  .header-actions button,
+  .header-account button {
     min-height: 38px;
+  }
+
+  .auth-page {
+    width: min(100% - 28px, 620px);
   }
 
   .planner-intro {
@@ -1021,12 +1303,13 @@ footer p {
     width: calc(100% - 20px);
   }
 
-  .header-actions button {
+  .header-actions button,
+  .header-account button {
     padding-inline: 10px;
     font-size: 0.72rem;
   }
 
-  .header-actions button:first-child {
+  .header-actions > button:first-child {
     width: 38px;
     padding: 0;
     font-size: 0;

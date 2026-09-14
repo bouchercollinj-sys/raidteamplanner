@@ -1,0 +1,19 @@
+---
+description: Keep this project local; do not use cloud agents
+alwaysApply: true
+---
+
+# Local development only
+
+This repository lives on the user's machine at
+`/Users/collinboucher/Projects/justraidplanner/raidteamplanner`. The git
+remote is GitHub (`origin` → `github.com/bouchercollinj-sys/raidteamplanner`).
+
+- Do all implementation, installs, builds, tests, and `npm run dev` in this
+  local checkout.
+- Do not start Cursor Cloud Agents, cloud worktrees, or isolated VMs to
+  build or edit this project.
+- Do not create Cursor-hosted remotes (`origin.cursor.com`) or change
+  `origin`.
+- Cloudflare Workers Builds on GitHub PRs are optional CI, not the source of
+  truth. Local `npm run build` / `npm run dev` are what matter.

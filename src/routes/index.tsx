@@ -33,6 +33,7 @@ export const Route = createFileRoute('/')({
 function PlannerRoute() {
   const search = Route.useSearch()
   const navigate = Route.useNavigate()
+  const { user } = Route.useRouteContext()
   const raidSize = parseRaidSize(search.size)
   const decoded = decodeRaid(search.raid, raidSize)
 
@@ -72,7 +73,13 @@ function PlannerRoute() {
     )
   }
 
-  return <RaidPlanner state={decoded.state} onStateChange={setRaid} />
+  return (
+    <RaidPlanner
+      state={decoded.state}
+      onStateChange={setRaid}
+      user={user}
+    />
+  )
 }
 
 function PlannerLoading() {
