@@ -366,7 +366,7 @@ export function RaidPlanner({ state, onStateChange }: RaidPlannerProps) {
             Your roster lives in this URL. No account, save button, or database
             required.
           </p>
-          <span>TBC Classic party buffs are shown by specialization.</span>
+          <span>Party buffs are shown by specialization.</span>
         </footer>
       </div>
 
