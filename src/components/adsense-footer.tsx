@@ -20,22 +20,7 @@ export function AdSenseFooter() {
       return
     }
 
-    const hasLiveAd = () => {
-      if (!slot) {
-        return false
-      }
-
-      if (slot.getAttribute('data-ad-status') === 'unfilled') {
-        return false
-      }
-
-      if (slot.getAttribute('data-ad-status') === 'filled') {
-        return true
-      }
-
-      const frame = slot.querySelector('iframe')
-      return Boolean(frame && frame.offsetHeight > 0)
-    }
+    const hasLiveAd = () => slot?.getAttribute('data-ad-status') === 'filled'
 
     const applyBarState = () => {
       const filled = hasLiveAd()
@@ -63,10 +48,26 @@ export function AdSenseFooter() {
       bar.style.setProperty('width', '100%', 'important')
       bar.style.setProperty('height', height, 'important')
       bar.style.setProperty('max-height', height, 'important')
+      bar.style.setProperty('min-height', '0px', 'important')
       bar.style.setProperty('overflow', 'hidden', 'important')
       bar.style.setProperty('margin', '0px', 'important')
       bar.style.setProperty('padding', padding, 'important')
       bar.style.setProperty('transform', 'none', 'important')
+      bar.style.setProperty(
+        'clip-path',
+        filled ? 'none' : 'inset(0 0 100% 0)',
+        'important',
+      )
+
+      if (filled) {
+        bar.style.removeProperty('background')
+        bar.style.removeProperty('border')
+        bar.style.removeProperty('box-shadow')
+      } else {
+        bar.style.setProperty('background', 'transparent', 'important')
+        bar.style.setProperty('border', '0', 'important')
+        bar.style.setProperty('box-shadow', 'none', 'important')
+      }
 
       document.body.style.setProperty('--site-ad-footer-height', height)
     }
@@ -78,6 +79,7 @@ export function AdSenseFooter() {
     if (slot) {
       observer.observe(slot, {
         attributes: true,
+        attributeFilter: ['data-ad-status', 'data-adsbygoogle-status', 'style'],
         childList: true,
         subtree: true,
       })
@@ -96,7 +98,7 @@ export function AdSenseFooter() {
     const poll = window.setInterval(applyBarState, 500)
     const stopPoll = window.setTimeout(() => {
       window.clearInterval(poll)
-    }, 10_000)
+    }, 30_000)
 
     return () => {
       observer.disconnect()
