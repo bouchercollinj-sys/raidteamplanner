@@ -78,7 +78,7 @@ html {
 body {
   min-height: 100vh;
   margin: 0;
-  padding-bottom: var(--site-ad-footer-height, 90px);
+  padding-bottom: var(--site-ad-footer-height, 0px);
   color: var(--ink);
   font-family:
     Inter,
@@ -1112,15 +1112,26 @@ a.brand-lockup:hover {
   z-index: 20 !important;
   box-sizing: border-box;
   width: 100% !important;
+  height: 0 !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  pointer-events: none;
+  transform: none !important;
+}
+
+.site-ad-footer[data-filled] {
   height: 90px !important;
   max-height: 90px !important;
-  overflow: hidden !important;
   padding: 6px 12px max(6px, env(safe-area-inset-bottom)) !important;
-  margin: 0 !important;
   border-top: 1px solid var(--line);
   background: color-mix(in srgb, var(--surface-raised) 92%, white);
   box-shadow: 0 -8px 24px var(--shadow);
-  transform: none !important;
+  pointer-events: auto;
 }
 
 .site-ad-footer-slot {

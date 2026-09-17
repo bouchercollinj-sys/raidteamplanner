@@ -29,6 +29,10 @@ export const Route = createRootRoute({
       {
         title: 'justraidplanner · Raid Planner',
       },
+      {
+        name: 'google-adsense-account',
+        content: 'ca-pub-5845912732049177',
+      },
     ],
     links: [
       {
@@ -44,12 +48,12 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>
-        <HeadContent />
         <script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5845912732049177"
           crossOrigin="anonymous"
         />
+        <HeadContent />
       </head>
       <body>
         {children}

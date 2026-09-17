@@ -20,30 +20,68 @@ export function AdSenseFooter() {
       return
     }
 
-    const lockBar = () => {
-      const locked =
-        bar.style.getPropertyValue('height') === AD_BAR_HEIGHT &&
-        bar.style.getPropertyPriority('height') === 'important'
-
-      if (!locked) {
-        bar.style.setProperty('position', 'fixed', 'important')
-        bar.style.setProperty('right', '0px', 'important')
-        bar.style.setProperty('bottom', '0px', 'important')
-        bar.style.setProperty('left', '0px', 'important')
-        bar.style.setProperty('width', '100%', 'important')
-        bar.style.setProperty('height', AD_BAR_HEIGHT, 'important')
-        bar.style.setProperty('max-height', AD_BAR_HEIGHT, 'important')
-        bar.style.setProperty('overflow', 'hidden', 'important')
-        bar.style.setProperty('margin', '0px', 'important')
-        bar.style.setProperty('transform', 'none', 'important')
+    const hasLiveAd = () => {
+      if (!slot) {
+        return false
       }
 
-      document.body.style.setProperty('--site-ad-footer-height', AD_BAR_HEIGHT)
+      if (slot.getAttribute('data-ad-status') === 'unfilled') {
+        return false
+      }
+
+      if (slot.getAttribute('data-ad-status') === 'filled') {
+        return true
+      }
+
+      const frame = slot.querySelector('iframe')
+      return Boolean(frame && frame.offsetHeight > 0)
     }
 
-    lockBar()
-    const observer = new MutationObserver(lockBar)
+    const applyBarState = () => {
+      const filled = hasLiveAd()
+      const height = filled ? AD_BAR_HEIGHT : '0px'
+      const padding = filled
+        ? '6px 12px max(6px, env(safe-area-inset-bottom))'
+        : '0px'
+      const alreadyApplied =
+        bar.hasAttribute('data-filled') === filled &&
+        bar.style.getPropertyValue('height') === height &&
+        bar.style.getPropertyPriority('height') === 'important'
+
+      if (alreadyApplied) {
+        document.body.style.setProperty('--site-ad-footer-height', height)
+        return
+      }
+
+      bar.toggleAttribute('data-filled', filled)
+      bar.setAttribute('aria-hidden', filled ? 'false' : 'true')
+
+      bar.style.setProperty('position', 'fixed', 'important')
+      bar.style.setProperty('right', '0px', 'important')
+      bar.style.setProperty('bottom', '0px', 'important')
+      bar.style.setProperty('left', '0px', 'important')
+      bar.style.setProperty('width', '100%', 'important')
+      bar.style.setProperty('height', height, 'important')
+      bar.style.setProperty('max-height', height, 'important')
+      bar.style.setProperty('overflow', 'hidden', 'important')
+      bar.style.setProperty('margin', '0px', 'important')
+      bar.style.setProperty('padding', padding, 'important')
+      bar.style.setProperty('transform', 'none', 'important')
+
+      document.body.style.setProperty('--site-ad-footer-height', height)
+    }
+
+    applyBarState()
+    const observer = new MutationObserver(applyBarState)
     observer.observe(bar, { attributes: true, attributeFilter: ['style'] })
+
+    if (slot) {
+      observer.observe(slot, {
+        attributes: true,
+        childList: true,
+        subtree: true,
+      })
+    }
 
     if (slot && !slot.getAttribute('data-adsbygoogle-status')) {
       try {
@@ -55,8 +93,15 @@ export function AdSenseFooter() {
       }
     }
 
+    const poll = window.setInterval(applyBarState, 500)
+    const stopPoll = window.setTimeout(() => {
+      window.clearInterval(poll)
+    }, 10_000)
+
     return () => {
       observer.disconnect()
+      window.clearInterval(poll)
+      window.clearTimeout(stopPoll)
       document.body.style.removeProperty('--site-ad-footer-height')
     }
   }, [])
@@ -66,6 +111,7 @@ export function AdSenseFooter() {
       ref={barRef}
       className="site-ad-footer"
       aria-label="Advertisement"
+      aria-hidden="true"
     >
       <div className="site-ad-footer-slot">
         <ins
