@@ -1,5 +1,6 @@
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
 
+import { AdSenseFooter } from '#/components/adsense-footer'
 import { getSession } from '#/lib/auth.functions'
 
 import appCss from '../planner.css?url'
@@ -44,9 +45,15 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5845912732049177"
+          crossOrigin="anonymous"
+        />
       </head>
       <body>
         {children}
+        <AdSenseFooter />
         <Scripts />
       </body>
     </html>
