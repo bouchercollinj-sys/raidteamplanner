@@ -224,9 +224,20 @@ export function RaidPlanner({
                 <RotateCcw />
                 Reset
               </Button>
-              <Button type="button" onClick={copyShareLink}>
+              <Button
+                type="button"
+                onClick={copyShareLink}
+                aria-label={
+                  shareStatus === 'copied' ? 'Link copied' : 'Copy share link'
+                }
+              >
                 {shareStatus === 'copied' ? <Check /> : <Link2 />}
-                {shareStatus === 'copied' ? 'Link copied' : 'Copy share link'}
+                <span className="action-label-full">
+                  {shareStatus === 'copied' ? 'Link copied' : 'Copy share link'}
+                </span>
+                <span className="action-label-short" aria-hidden="true">
+                  {shareStatus === 'copied' ? 'Copied' : 'Share'}
+                </span>
               </Button>
             </div>
             <AuthMenu user={user} />
@@ -297,7 +308,8 @@ export function RaidPlanner({
                 <p className="eyebrow">Roster palette</p>
                 <h2 id="spec-palette-title">Specs</h2>
               </div>
-              <span>27 specializations</span>
+              <span className="section-heading-meta">27 specializations</span>
+              <span className="spec-palette-hint">Tap a spec to add</span>
             </div>
             <div className="class-list">
               {specClasses.map((classDefinition) => (
